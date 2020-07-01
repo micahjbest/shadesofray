@@ -24,6 +24,19 @@
 #include "pixel.h"
 
 #include "SDL.h"
+#ifndef USE_SDL_RENDERER
+
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
+#endif // GL_GLEXT_PROTOTYPES
+
+#include "SDL_opengl.h"
+
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl.h"
+
+#endif // USE_SDL_RENDERER
 
 namespace MJB {
 
@@ -43,15 +56,28 @@ class Renderer {
 
     SDL_Renderer* SDLRenderer = nullptr; /**< SDL renderer abstraction */
     SDL_Window* SDLWindow = nullptr; /**< The window we'll be rendering to */
+
+#ifdef USE_SDL_RENDERER
     SDL_Surface* screenSurface =
         nullptr; /**< The surface contained by the window */
 
     SDL_Texture* pixelTexture =
         nullptr; /**< texture for pixel by pixel drawing  */
-    SDL_Surface* pixelSurface =
-        nullptr; /**< raw pixels to write to for texture */
+    void* directPixels = nullptr;
+    /**< current pointer to write to the streaming texture */
 
-    std::string applicationName = "Shades of Ray    ";
+    int directPixelsPitch = -1;
+    /**< current pitch for the pixel textures */
+#else
+    SDL_GLContext renderingContext;
+
+    GLuint pixelTextureID;
+    GLuint readFBOId = 0;
+
+    PixelRGBA* pixelData = nullptr;
+
+#endif // USE_SDL_RENDERER
+    std::string applicationName = "Shades of Ray";
 
     std::vector<ImageRGBA> ownedImages;
 
@@ -67,12 +93,20 @@ class Renderer {
 
     // abstraction to get the current pixel buffer
     PixelRGBA* getPixelBuffer() {
-        return (PixelRGBA*)pixelSurface->pixels;
+#ifdef USE_SDL_RENDERER
+        return (PixelRGBA*)directPixels;
+#else
+        return pixelData;
+#endif // USE_SDL_RENDERER
     }
 
     // abstraction to get the current pixel buffer
     const PixelRGBA* getPixelBuffer() const {
-        return (PixelRGBA*)pixelSurface->pixels;
+#ifdef USE_SDL_RENDERER
+        return (PixelRGBA*)directPixels;
+#else
+        return pixelData;
+#endif // USE_SDL_RENDERER
     }
 
     // add image to registry of images and give it a handle
@@ -92,8 +126,8 @@ class Renderer {
     /**************************************************************************/
     /**
      * @brief  Retreive the actual image associated with a given handle and
-     *         a specific size (will create a new entry in the scale cache if
-     *         that size hasn't been created before)
+     *         a specific size (will create a new entry in the scale cache
+     * if that size hasn't been created before)
      *
      * @param handle The handle for the image
      *
@@ -183,6 +217,34 @@ class Renderer {
 
     /**************************************************************************/
     /**
+     * @brief  Indicate that drawing is going to start for a frame
+     *
+     * Note that the contents of this may be garbage, so clear it or cover
+     * it
+     *
+     */
+    void startFrame();
+
+    /**************************************************************************/
+    /**
+     * @brief  Indicate that drawing is done for a frame
+     *
+     * This doesn't actually present to the screen, just necessary for it
+     *
+     */
+    void endFrame();
+
+    /**************************************************************************/
+    /**
+     * @brief Process an SDL event (pass it onto the GUI)
+     *
+     * @return true if that event was processed, false otherwise
+     *
+     */
+    bool processInput(SDL_Event const& event);
+
+    /**************************************************************************/
+    /**
      * @brief  Draw a single pixel
      *
      * @param x x coordinate
@@ -191,10 +253,11 @@ class Renderer {
      *
      */
     inline void drawPixel(int const& x, int const& y, PixelRGBA const& p) {
-        // if( x > 0 and y > 0 and x < screenWidth and y < screenHeight ) {
-        // blend with (or replace) the current pixel
+#ifdef USE_SDL_RENDERER
         getPixelBuffer()[y * screenWidth + x] += p;
-        //}
+#else
+        getPixelBuffer()[((screenHeight - 1) - y) * screenWidth + x] += p;
+#endif
     }
 
     /**************************************************************************/
@@ -203,13 +266,17 @@ class Renderer {
      *
      * @param x x coordinate
      * @param y y coordinate
-     * @param p  pixel to use for drawing
      *
      * @return  the pixel at the current location
      *
      */
     PixelRGBA const& getPixel(int const& x, int const& y) const {
+
+#ifdef USE_SDL_RENDERER
         return getPixelBuffer()[y * screenWidth + x];
+#else
+        return getPixelBuffer()[((screenHeight - 1) - y) * screenWidth + x];
+#endif
     }
 
     /**************************************************************************/
@@ -224,9 +291,11 @@ class Renderer {
      *
      */
     void setPixel(int const& x, int const& y, PixelRGBA const& p) {
-        // if( x >= 0 and x < screenWidth and y >= 0 and y < screenHeight ) {
+#ifdef USE_SDL_RENDERER
         getPixelBuffer()[y * screenWidth + x] = p;
-        //}
+#else
+        getPixelBuffer()[((screenHeight - 1) - y) * screenWidth + x] = p;
+#endif
     }
 
     /**************************************************************************/
@@ -241,9 +310,11 @@ class Renderer {
      *
      */
     void addPixel(int const& x, int const& y, PixelRGBA const& p) {
-        // if( x >= 0 and x < screenWidth and y >= 0 and y < screenHeight ) {
+#ifdef USE_SDL_RENDERER
         getPixelBuffer()[y * screenWidth + x] += p;
-        //}
+#else
+        getPixelBuffer()[((screenHeight - 1) - y) * screenWidth + x] += p;
+#endif
     }
 
     /**************************************************************************/

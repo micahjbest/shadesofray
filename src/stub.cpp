@@ -47,53 +47,56 @@ int main(int argc, char const* argv[]) {
     bool lineInProgress = false;
 
     while (running) {
-
+        renderer->startFrame();
         renderer->clear({255, 255, 255, 255});
 
         while (SDL_PollEvent(&e)) {
-            switch (e.type) {
-                case SDL_QUIT: {
-                    running = false;
-                } break;
+            if (e.type == SDL_QUIT) {
+                running = false;
+                break;
+            }
 
-                case SDL_KEYDOWN:
-                case SDL_KEYUP: {
-                } break;
+            if (not renderer->processInput(e)) {
+                switch (e.type) {
+                    case SDL_KEYDOWN:
+                    case SDL_KEYUP: {
+                    } break;
 
-                case SDL_MOUSEBUTTONDOWN: {
-                    switch (e.button.button) {
-                        case SDL_BUTTON_LEFT: {
-                            // if we don't have a line in progress,
-                            // make it so we do
-                            if (!lineInProgress) {
-                                lineGroups.emplace_back();
-                            }
-                            auto& x = e.button.x;
-                            auto& y = e.button.y;
-                            lineGroups.back().emplace_back(x, y);
+                    case SDL_MOUSEBUTTONDOWN: {
+                        switch (e.button.button) {
+                            case SDL_BUTTON_LEFT: {
+                                // if we don't have a line in progress,
+                                // make it so we do
+                                if (!lineInProgress) {
+                                    lineGroups.emplace_back();
+                                }
+                                auto& x = e.button.x;
+                                auto& y = e.button.y;
+                                lineGroups.back().emplace_back(x, y);
 
-                            lineInProgress = true;
+                                lineInProgress = true;
 
-                        } break;
-                        case SDL_BUTTON_RIGHT: {
-                            // interupt any line in progress
-                            lineInProgress = false;
+                            } break;
+                            case SDL_BUTTON_RIGHT: {
+                                // interupt any line in progress
+                                lineInProgress = false;
 
-                            // if we have a single point line, remove it
-                            if (lineGroups.back().size() == 1) {
-                                lineGroups.pop_back();
-                            }
+                                // if we have a single point line, remove it
+                                if (lineGroups.back().size() == 1) {
+                                    lineGroups.pop_back();
+                                }
 
-                        } break;
-                    }
-                } break;
+                            } break;
+                        }
+                    } break;
 
-                case SDL_MOUSEBUTTONUP: {
-                } break;
+                    case SDL_MOUSEBUTTONUP: {
+                    } break;
 
-                default: {
-                    // just ignore this
-                } break;
+                    default: {
+                        // just ignore this
+                    } break;
+                }
             }
         }
 
@@ -120,6 +123,7 @@ int main(int argc, char const* argv[]) {
             ++groupCount;
         }
 
+        renderer->endFrame();
         renderer->draw();
     }
 

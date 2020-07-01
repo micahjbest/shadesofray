@@ -256,7 +256,6 @@ ImageRGBA Renderer::resizeImage(ImageRGBA const& image, int newSizeX,
 void Renderer::drawImage(int destOriginX, int destOriginY,
                          ImageRGBA const& image) {
 
-    // std::cout << "dest: " << destOriginX << ", " << destOriginY << "\n";
     if (destOriginX >= screenWidth or destOriginY >= screenHeight)
         return;
 
@@ -292,17 +291,6 @@ void Renderer::drawImage(int destOriginX, int destOriginY,
         srcAfterLastY -= (destAfterLastY - screenHeight);
     }
 
-    // std::cout << "Drawing image: " << image.sizeX() << ", " << image.sizeY()
-    // << "\n"; std::cout << "screen: " << screenWidth << ", " << screenHeight
-    // << "\n"; std::cout << "src: " << srcFirstX << ", " << srcFirstY << " : "
-    // <<
-    //              srcAfterLastX << ", " << srcAfterLastY << "\n";
-
-    // std::cout << "dest: " << destFirstX << ", " << destFirstY << " : " <<
-    // "\n";
-
-    // return;
-
     if (srcAfterLastX <= 0 or srcAfterLastY <= 0)
         return;
 
@@ -310,9 +298,6 @@ void Renderer::drawImage(int destOriginX, int destOriginY,
     int destPosY = destFirstY;
     for (int srcPosY = srcFirstY; srcPosY < srcAfterLastY; ++srcPosY) {
         for (int srcPosX = srcFirstX; srcPosX < srcAfterLastX; ++srcPosX) {
-            // std::cout << " - dest pixel: " << destPosX << ", " << destPosY <<
-            // "\n"; std::cout << " - dest pixel: " << srcPosX << ", " <<
-            // srcPosY << "\n";
 
             addPixel(destPosX, destPosY, image.getPixel(srcPosX, srcPosY));
 
@@ -333,20 +318,14 @@ void Renderer::init() {
 
     std::cout << "screen dims: " << screenWidth << ", " << screenHeight << "\n";
 
+#ifdef USE_SDL_RENDERER
     // Create the window
     SDLWindow = SDL_CreateWindow(
         applicationName.c_str(), SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
 
-    // Create and setup the renderer
-    // SDLRenderer = SDL_CreateRenderer(SDLWindow, -1,
-    // SDL_RENDERER_ACCELERATED); SDLRenderer = SDL_CreateRenderer(SDLWindow,
-    // -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
-    SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
-
-    SDL_GL_SetSwapInterval(0);
-
-    // SDL_SetSwapInterval(0);
+    SDLRenderer = SDL_CreateRenderer(
+        SDLWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     if (SDLWindow == NULL) {
         error(std::string("Window could not be created! SDL Error: ") +
@@ -363,20 +342,125 @@ void Renderer::init() {
 
     SDL_SetTextureBlendMode(pixelTexture, SDL_BLENDMODE_NONE);
 
-    void* pixelAccess;
-    int pitch;
+#else
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
-    SDL_LockTexture(pixelTexture, NULL, &pixelAccess, &pitch);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_CORE);
 
-    pixelSurface = SDL_CreateRGBSurfaceWithFormatFrom(pixelAccess, screenWidth,
-                                                      screenHeight, 32, pitch,
-                                                      SDL_PIXELFORMAT_RGBA32);
+    SDLWindow = SDL_CreateWindow(
+        applicationName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+    renderingContext = SDL_GL_CreateContext(SDLWindow);
+
+    pixelData = new PixelRGBA[screenWidth * screenHeight];
+
+    glGenTextures(1, &pixelTextureID);
+    glBindTexture(GL_TEXTURE_2D, pixelTextureID);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, screenWidth, screenHeight, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glGenFramebuffers(1, &readFBOId);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBOId);
+    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, pixelTextureID, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer bindings
+    // window is the SDL_Window*
+    // contex is the SDL_GLContext
+    ImGui_ImplSDL2_InitForOpenGL(SDLWindow, renderingContext);
+    ImGui_ImplOpenGL3_Init();
+
+#endif // USE_SDL_RENDERER
 
     auto frameTimingStart = std::chrono::high_resolution_clock::now();
 }
 
-void Renderer::shutdown() {
+void Renderer::draw() {
+#ifdef USE_SDL_RENDERER
+    SDL_RenderCopy(SDLRenderer, pixelTexture, NULL, NULL);
+    SDL_RenderPresent(SDLRenderer);
+#else
 
+    /****
+     * IMGUI stuff
+     **/
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(SDLWindow);
+    ImGui::NewFrame();
+
+    ImGui::Begin("MyWindow");
+    // ImGui::Checkbox("Boolean property", &this->someBoolean);
+    if (ImGui::Button("Press Me")) {
+        // This code is executed when the user clicks the button
+        std::cout << "Button Pressed"
+                  << "\n";
+    }
+    // ImGui::SliderFloat("Speed", &this->speed, 0.0f, 10.0f);
+    ImGui::End();
+
+    /****
+     * openGL stuff
+     **/
+
+    glBindTexture(GL_TEXTURE_2D, pixelTextureID);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, screenWidth, screenHeight, GL_RGBA,
+                    GL_UNSIGNED_BYTE, pixelData);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBOId);
+    glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth,
+                      screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    SDL_GL_SwapWindow(SDLWindow);
+
+#endif // USE_SDL_RENDERER
+
+    framesTimed++;
+
+    auto frameTimingStop = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+        frameTimingStop - frameTimingStart);
+    auto elapsedTicks = elapsedTime.count();
+
+    if (elapsedTicks > 1000) {
+        float fps = ((float)framesTimed) / (((float)elapsedTicks) / 1000.0);
+        std::cout << "FPS: " << fps << '\n';
+        framesTimed = 0;
+        frameTimingStart = std::chrono::high_resolution_clock::now();
+    }
+}
+
+void Renderer::shutdown() {
+#ifndef USE_SDL_RENDERER
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DeleteContext(renderingContext);
+#endif // USE_SDL_RENDERER
     // Destroy our resources, if we got to creating them
     if (SDLWindow) {
         SDL_DestroyWindow(SDLWindow);
@@ -386,13 +470,31 @@ void Renderer::shutdown() {
         SDL_DestroyRenderer(SDLRenderer);
     }
 
+#ifdef USE_SDL_RENDERER
     if (pixelTexture) {
         SDL_DestroyTexture(pixelTexture);
     }
+#endif
+}
 
-    if (pixelSurface) {
-        SDL_FreeSurface(pixelSurface);
-    }
+void Renderer::startFrame() {
+#ifdef USE_SDL_RENDERER
+    SDL_LockTexture(pixelTexture, NULL, &directPixels, &directPixelsPitch);
+#endif // USE_SDL_RENDERER
+}
+
+void Renderer::endFrame() {
+#ifdef USE_SDL_RENDERER
+    SDL_UnlockTexture(pixelTexture);
+#endif // USE_SDL_RENDERER
+}
+
+bool Renderer::processInput(SDL_Event const& event) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
+    return io.WantCaptureKeyboard || io.WantCaptureMouse;
 }
 
 void Renderer::drawLine(int x1, int y1, int x2, int y2, PixelRGBA p) {
@@ -421,12 +523,6 @@ void Renderer::drawLine(int x1, int y1, int x2, int y2, PixelRGBA p) {
 }
 
 PixelRGBA Renderer::getPixel(int const& x, int const& y, ImageHandle handle) {
-    // auto surface = imageSurfaces[handle];
-
-    // SDL_LockSurface(surface);
-    // auto pixel = ((PixelRGBA*)surface->pixels)[ y * surface->w + x ];
-    // SDL_UnlockSurface(surface);
-
     auto& image = lookupImage(handle);
 
     auto pixel = image.getPixel(x, y);
@@ -562,51 +658,6 @@ void Renderer::drawImage(int x1, int y1, int x2, int y2, ImageHandle handle) {
     auto sizeX = x2 - x1 + 1;
     auto sizeY = y2 - y1 + 1;
     drawImage(x1, y1, lookupImage(handle, sizeX, sizeY));
-}
-
-void Renderer::draw() {
-
-    // std::memcpy( pixelSurface->pixels,
-    //              pixelBuffer,
-    //              screenWidth * screenHeight * sizeof(PixelRGBA) );
-
-    SDL_UnlockTexture(pixelTexture);
-
-    // cadmium::SimpleTimerRAII foo("copy");
-    SDL_RenderCopy(SDLRenderer, pixelTexture, NULL, NULL);
-
-    // cadmium::SimpleTimerRAII foo("present");
-    SDL_RenderPresent(SDLRenderer);
-
-    void* pixelAccess;
-    int pitch;
-
-    // SDL_LockTexture(pixelTexture, NULL, &pixelAccess, &pitch );
-    //
-    // if( pixelAccess != pixelSurface->pixels ) {
-    //     SDL_FreeSurface( pixelSurface );
-    //
-    //     pixelSurface = SDL_CreateRGBSurfaceWithFormatFrom( pixelAccess,
-    //                                                        screenWidth,
-    //                                                        screenHeight,
-    //                                                        32,
-    //                                                        pitch,
-    //                                                        SDL_PIXELFORMAT_RGBA32
-    //                                                        );
-
-    framesTimed++;
-
-    auto frameTimingStop = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
-        frameTimingStop - frameTimingStart);
-    auto elapsedTicks = elapsedTime.count();
-
-    if (elapsedTicks > 1000) {
-        float fps = ((float)framesTimed) / (((float)elapsedTicks) / 1000.0);
-        // std::cout << "FPS: " << fps << '\n';
-        framesTimed = 0;
-        frameTimingStart = std::chrono::high_resolution_clock::now();
-    }
 }
 
 ImageHandle Renderer::loadImage(std::string const& filename) {
