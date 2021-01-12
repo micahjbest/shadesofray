@@ -1,14 +1,13 @@
 #ifndef MJB_RENDERER_IMAGE
 #define MJB_RENDERER_IMAGE
 
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <string>
 
-#include "pixel.h"
+#include "pixel.hpp"
 
-
-namespace MJB {
+namespace MjB {
 
 /**************************************************************************/
 /**
@@ -16,14 +15,13 @@ namespace MJB {
  * @brief Contain the pixel data and metadata for an image
  *
  */
-template<typename PixelType>
+template <typename PixelType>
 class Image {
     uint32_t xDim;
     uint32_t yDim;
     PixelType* pixels = nullptr;
-    
-public:
 
+  public:
     static const uint8_t channels = PixelType::channels;
 
     /**************************************************************************/
@@ -34,16 +32,11 @@ public:
      * @param y height of the new image
      *
      */
-    Image(int x, int y ) :
-        xDim( x ),
-        yDim( y )
-    {
-        pixels = new PixelType[ x * y ];
-    }
+    Image(int x, int y) : xDim(x), yDim(y) { pixels = new PixelType[x * y]; }
 
     // non-copyable
-    Image( Image const& other ) = delete;
-    
+    Image(Image const& other) = delete;
+
     /**************************************************************************/
     /**
      * @brief  Move constructor
@@ -51,11 +44,8 @@ public:
      * @param other Image to move
      *
      */
-    Image( Image&& other ) :
-        xDim(other.xDim),
-        yDim(other.yDim),
-        pixels(other.pixels)
-    {
+    Image(Image&& other) :
+        xDim(other.xDim), yDim(other.yDim), pixels(other.pixels) {
         other.pixels = nullptr;
     }
 
@@ -66,7 +56,7 @@ public:
      * @param other Image to move
      *
      */
-    Image&& operator=( Image&& other ) {
+    Image&& operator=(Image&& other) {
         xDim = other.xDim;
         yDim = other.yDim;
         pixels = other.pixels;
@@ -75,52 +65,48 @@ public:
 
     /**************************************************************************/
     /**
-     * @brief Get the width of the image 
+     * @brief Get the width of the image
      *
-     * @param 
+     * @param
      *
      */
-    uint32_t sizeX() const {
-        return xDim;
-    }
+    uint32_t sizeX() const { return xDim; }
 
     /**************************************************************************/
     /**
-     * @brief Get the height of the image 
+     * @brief Get the height of the image
      *
-     * @param 
+     * @param
      *
      */
-    uint32_t sizeY() const {
-        return yDim;
-    }
+    uint32_t sizeY() const { return yDim; }
 
     /**************************************************************************/
     /**
-     * @brief  Set a single pixel 
+     * @brief  Set a single pixel
      *
      * @param x x coordinate of the target pixel
      * @param y y coordinate of the target pixel
      * @param colour New value for the pixel
      *
      */
-    void setPixel( uint32_t x, uint32_t y, PixelType const& colour ) {
+    void setPixel(uint32_t x, uint32_t y, PixelType const& colour) {
         int pos = y * (xDim) + x;
-        pixels[ pos ] = colour;
+        pixels[pos] = colour;
     }
 
     /**************************************************************************/
     /**
-     * @brief  Get a single pixel 
+     * @brief  Get a single pixel
      *
      * @param x x coordinate of the source pixel
      * @param y y coordinate of the source pixel
      * @return current value of the pixel
      *
      */
-    PixelType const& getPixel( uint32_t x, uint32_t y ) const {
+    PixelType const& getPixel(uint32_t x, uint32_t y) const {
         size_t pos = y * (xDim) + x;
-        return pixels[ pos ];
+        return pixels[pos];
     }
 
     /**************************************************************************/
@@ -130,10 +116,10 @@ public:
      * @param color Color to fill (as RGBA pixel)
      *
      */
-    void clear( PixelType const& color = PixelType(255, 255, 255, 255) ) {
-        for( uint32_t x = 0; x < xDim; ++x ) {
-            for( uint32_t y = 0; y < yDim; ++y ) {
-                setPixel( x, y, color );
+    void clear(PixelType const& color = PixelType(255, 255, 255, 255)) {
+        for (uint32_t x = 0; x < xDim; ++x) {
+            for (uint32_t y = 0; y < yDim; ++y) {
+                setPixel(x, y, color);
             }
         }
     }
@@ -142,45 +128,40 @@ public:
     /**
      * @brief  Access the raw buffer of pixel/channel data
      *
-     * @return a pointer to the image data 
+     * @return a pointer to the image data
      *
      */
-    void* getChannelDataBuffer() {
-        return reinterpret_cast<void*>( pixels );
-    }
+    void* getChannelDataBuffer() { return reinterpret_cast<void*>(pixels); }
 
     /**************************************************************************/
     /**
      * @brief  Access the raw buffer of pixel/channel data
      *
-     * @return a pointer to the image data 
+     * @return a pointer to the image data
      *
      */
     const void* getChannelDataBuffer() const {
-        return reinterpret_cast<void*>( pixels );
+        return reinterpret_cast<void*>(pixels);
     }
 
     /**************************************************************************/
     /**
-     * @brief  Destructor 
+     * @brief  Destructor
      *
      */
     ~Image() {
-        if( pixels != nullptr ) {
+        if (pixels != nullptr) {
             delete pixels;
         }
     }
-
 };
 
 using ImageRGBA = Image<PixelRGBA>;
 
-ImageRGBA readImageRGBA( std::string const& filename );
-void writeImageRGBA( ImageRGBA const& image,  
-                     std::string const& filename, 
-                     bool sequential );
+ImageRGBA readImageRGBA(std::string const& filename);
+void writeImageRGBA(ImageRGBA const& image, std::string const& filename,
+                    bool sequential);
 
+} // namespace MjB
 
-} // namespace MJB
-
-#endif //MJB_RENDERER_IMAGE
+#endif // MJB_RENDERER_IMAGE

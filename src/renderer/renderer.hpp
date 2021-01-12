@@ -6,8 +6,7 @@
 //  Copyright © 2017 Micah J Best. All rights reserved.
 //
 
-#ifndef MJB_RENDERER
-#define MJB_RENDERER
+#pragma once
 
 #include <iostream>
 #include <map>
@@ -20,8 +19,8 @@
 #include <thread>
 #include <vector>
 
-#include "image.h"
-#include "pixel.h"
+#include "image.hpp"
+#include "pixel.hpp"
 
 #include "SDL.h"
 #ifndef USE_SDL_RENDERER
@@ -29,6 +28,8 @@
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif // GL_GLEXT_PROTOTYPES
+
+#include <functional>
 
 #include "SDL_opengl.h"
 
@@ -38,7 +39,7 @@
 
 #endif // USE_SDL_RENDERER
 
-namespace MJB {
+namespace MjB {
 
 // Data type for refering to a loaded texture
 using ImageHandle = int;
@@ -77,6 +78,10 @@ class Renderer {
     PixelRGBA* pixelData = nullptr;
 
 #endif // USE_SDL_RENDERER
+
+    // GUI rendering
+    std::function<void()> GUIUpdate;
+
     std::string applicationName = "Shades of Ray";
 
     std::vector<ImageRGBA> ownedImages;
@@ -236,12 +241,23 @@ class Renderer {
 
     /**************************************************************************/
     /**
+     * @brief  Set the logic for the GUI update phase
+     *
+     * @param void, non-parameterized function (likely lambda)
+     *
+     */
+    void setGUIUpdate(std::function<void()> const& updateFunction) {
+        GUIUpdate = updateFunction;
+    }
+
+    /**************************************************************************/
+    /**
      * @brief Process an SDL event (pass it onto the GUI)
      *
      * @return true if that event was processed, false otherwise
      *
      */
-    bool processInput(SDL_Event const& event);
+    bool processEvent(SDL_Event const& event);
 
     /**************************************************************************/
     /**
@@ -472,6 +488,4 @@ class Renderer {
     }
 };
 
-} // namespace MJB
-
-#endif // MJB_RENDERER
+} // namespace MjB

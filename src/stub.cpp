@@ -5,10 +5,10 @@
 #include <type_traits>
 #include <vector>
 
-#include "3dmath.h"
-#include "renderer.h"
+#include "math/3dmath.hpp"
+#include "renderer/renderer.hpp"
 
-struct ScreenPoint {
+int {
     float x = 0.0f;
     float y = 0.0f;
 
@@ -32,16 +32,28 @@ using LineSegments = std::vector<ScreenPoint>;
 
 int main(int argc, char const* argv[]) {
 
-    MJB::Renderer* renderer;
+    MjB::Renderer* renderer;
 
-    renderer = new MJB::Renderer;
+    renderer = new MjB::Renderer;
     renderer->setWidth(800);
     renderer->setHeight(600);
     renderer->init();
 
+    renderer->setGUIUpdate([]() {
+        ImGui::Begin("MyWindow");
+        // ImGui::Checkbox("Boolean property", &this->someBoolean);
+        if (ImGui::Button("Press Me")) {
+            // This code is executed when the user clicks the button
+            std::cout << "Button Pressed"
+                      << "\n";
+        }
+        // ImGui::SliderFloat("Speed", &this->speed, 0.0f, 10.0f);
+        ImGui::End();
+    });
+
     bool running = true;
 
-    SDL_Event e;
+    SDL_Event currentEvent;
 
     std::vector<LineSegments> lineGroups;
     bool lineInProgress = false;
@@ -50,28 +62,28 @@ int main(int argc, char const* argv[]) {
         renderer->startFrame();
         renderer->clear({255, 255, 255, 255});
 
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
+        while (SDL_PollEvent(&currentEvent)) {
+            if (currentEvent.type == SDL_QUIT) {
                 running = false;
                 break;
             }
 
-            if (not renderer->processInput(e)) {
-                switch (e.type) {
+            if (not renderer->processEvent(currentEvent)) {
+                switch (currentEvent.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
                     } break;
 
                     case SDL_MOUSEBUTTONDOWN: {
-                        switch (e.button.button) {
+                        switch (currentEvent.button.button) {
                             case SDL_BUTTON_LEFT: {
                                 // if we don't have a line in progress,
                                 // make it so we do
                                 if (!lineInProgress) {
                                     lineGroups.emplace_back();
                                 }
-                                auto& x = e.button.x;
-                                auto& y = e.button.y;
+                                auto& x = currentEvent.button.x;
+                                auto& y = currentEvent.button.y;
                                 lineGroups.back().emplace_back(x, y);
 
                                 lineInProgress = true;

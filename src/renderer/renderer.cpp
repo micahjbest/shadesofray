@@ -5,13 +5,13 @@
 //  Created by Micah J Best on 2017-01-07.
 //  Copyright © 2017 Micah J Best. All rights reserved.
 //
-
-#include "renderer.h"
-
 #include <cmath>
 #include <cstring>
 
-namespace MJB {
+
+#include "renderer.hpp"
+
+namespace MjB {
 
 ImageHandle Renderer::addNewImage(ImageRGBA&& image) {
     ownedImages.emplace_back(std::move(image));
@@ -80,7 +80,7 @@ PixelRGBA samplePixelInterpolate(ImageRGBA const& image, float locX,
                                  float locY) {
     // NOTE: for now, just do a linear interpolation between the sampled pixel
     // and its neighbour.. this could be a lot better
-    // TODO: make it better
+    // TODO(mjb): make it better
 
     // find our integer coordinates with a simple 'floor'
     int posX = (int)locX;
@@ -407,15 +407,7 @@ void Renderer::draw() {
     ImGui_ImplSDL2_NewFrame(SDLWindow);
     ImGui::NewFrame();
 
-    ImGui::Begin("MyWindow");
-    // ImGui::Checkbox("Boolean property", &this->someBoolean);
-    if (ImGui::Button("Press Me")) {
-        // This code is executed when the user clicks the button
-        std::cout << "Button Pressed"
-                  << "\n";
-    }
-    // ImGui::SliderFloat("Speed", &this->speed, 0.0f, 10.0f);
-    ImGui::End();
+    GUIUpdate();
 
     /****
      * openGL stuff
@@ -489,7 +481,7 @@ void Renderer::endFrame() {
 #endif // USE_SDL_RENDERER
 }
 
-bool Renderer::processInput(SDL_Event const& event) {
+bool Renderer::processEvent(SDL_Event const& event) {
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui_ImplSDL2_ProcessEvent(&event);
@@ -670,4 +662,4 @@ void Renderer::saveImage(ImageHandle handle, std::string const& filename,
     writeImageRGBA(lookupImage(handle), filename, sequential);
 }
 
-} // namespace MJB
+} // namespace MjB

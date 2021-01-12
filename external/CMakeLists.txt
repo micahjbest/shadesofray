@@ -9,10 +9,15 @@ add_library(
   # SDL2+OpenGL-specific files
   imgui/examples/imgui_impl_sdl.cpp imgui/examples/imgui_impl_opengl3.cpp)
 
+####
+# Imgui
+
 # Make SDL2 available to Imgui
 target_include_directories(imgui PUBLIC ${SDL2_INCLUDE_DIRS})
+
 # imgui/exapmles/ contains the sdl implementation
 target_include_directories(imgui PUBLIC imgui/ imgui/examples/)
+
 # Configure Imgui to use OpengGL through SDL2
 target_compile_definitions(
   imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM=<SDL_opengl.h>

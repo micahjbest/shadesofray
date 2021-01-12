@@ -17,7 +17,7 @@
 #ifndef MJB_3DMATH
 #define MJB_3DMATH
 
-namespace MJB_3D {
+namespace MjB {
 
 // Define the fundamental floating point type we'll be using (float by default)
 #ifndef MATH3DTYPE
@@ -34,7 +34,7 @@ using FloatType = MATH3DTYPE;
 /**************************************************************************/
 /**
  * @name Vector
- * @brief basic vector type, we'll assume column vector
+ * @brief basic vector type
  *
  *
  *
@@ -638,7 +638,7 @@ struct AABox2D {
      * @param _UL New upper left coordinate
      *
      */
-    void moveTo(MJB_3D::Vector2D _UL) {
+    void moveTo(MjB::Vector2D _UL) {
         auto w = width();
         auto h = height();
         UL = _UL;
@@ -838,6 +838,6 @@ static std::ostream& operator<<(std::ostream& os, AABox2D const& b) {
     return os;
 }
 
-} // namespace MJB_3D
+} // namespace MjB_3D
 
 #endif // MJB_3DMATH

@@ -1,5 +1,3 @@
-#include "image.h"
-
 #include "stb/stb_image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -8,7 +6,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 
-namespace MJB {
+#include "image.hpp"
+
+namespace MjB {
 
 // std::filesystem::path findFreeSequentialFile( std::string const& prefix,
 //                                               std::string const& extention )
@@ -82,4 +82,4 @@ void writeImageRGBA(ImageRGBA const& image, std::string const& filename,
                    image.sizeX() * sizeof(PixelRGBA));
 }
 
-} // namespace MJB
+} // namespace MjB

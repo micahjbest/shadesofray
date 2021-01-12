@@ -1,25 +1,32 @@
-#ifndef MJB_RENDERER_PIXEL
-#define MJB_RENDERER_PIXEL
+//
+// pixle.h
+//
+//
+//  Created by Micah J Best on 2020-07-01.
+//  Copyright © 2020 Micah J Best. All rights reserved.
+//
+
+#pragma once
 
 #include <cstdint>
 
-#include <string>
-#include <iostream>
 #include <array>
+#include <iostream>
+#include <string>
 
-namespace MJB {
+namespace MjB {
 
 struct PixelRawRGB {
     uint8_t R_; /**< red value */
     uint8_t G_; /**< green value */
-    uint8_t B_; /**< blue value */    
+    uint8_t B_; /**< blue value */
 };
 
 struct PixelRawRGBA {
     uint8_t R_; /**< red value */
     uint8_t G_; /**< green value */
-    uint8_t B_; /**< blue value */ 
-    uint8_t A_; /**< alpha value */   
+    uint8_t B_; /**< blue value */
+    uint8_t A_; /**< alpha value */
 };
 
 // 'tag' to indicate that values given are already premultiplied
@@ -35,12 +42,11 @@ struct PremultipliedAlpha {};
  */
 class PixelRGB : public PixelRawRGB {
 
-    uint8_t multiplyAlpha( uint8_t color, uint8_t alpha ) {
-        return (uint8_t)(color * ((float)alpha/255.0) );
+    uint8_t multiplyAlpha(uint8_t color, uint8_t alpha) {
+        return (uint8_t)(color * ((float)alpha / 255.0));
     }
 
-public:
-
+  public:
     static const uint8_t channels = 4;
 
     /**************************************************************************/
@@ -59,9 +65,7 @@ public:
      * @param _B Blue value
      *
      */
-    PixelRGB( uint8_t _R, uint8_t _G, uint8_t _B ) :
-        PixelRawRGB{_R, _G, _B}
-    {}
+    PixelRGB(uint8_t _R, uint8_t _G, uint8_t _B) : PixelRawRGB{_R, _G, _B} {}
 
     /**************************************************************************/
     /**
@@ -72,9 +76,7 @@ public:
      * @param _B Blue value
      *
      */
-    PixelRGB( PixelRawRGB const& other ) :
-        PixelRawRGB( other )
-    {}
+    PixelRGB(PixelRawRGB const& other) : PixelRawRGB(other) {}
 
     /**************************************************************************/
     /**
@@ -86,49 +88,42 @@ public:
      * @param _A Alpha value
      *
      */
-    PixelRGB( uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A ) :
-        PixelRawRGB{ multiplyAlpha(_R, _A),
-                     multiplyAlpha(_G, _A),
-                     multiplyAlpha(_B, _A) }
-    {}
+    PixelRGB(uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A) :
+        PixelRawRGB{multiplyAlpha(_R, _A), multiplyAlpha(_G, _A),
+                    multiplyAlpha(_B, _A)} {}
 
     /**************************************************************************/
     /**
-     * @brief  Initialization constructor from size 3 array 
+     * @brief  Initialization constructor from size 3 array
      *
      * @param channelData Array of four bytes
      *
      */
-    PixelRGB( std::array<uint8_t, 3> const& channelData ) :
-        PixelRawRGB{ channelData[0],
-                     channelData[1],
-                     channelData[2] }
-    {}
+    PixelRGB(std::array<uint8_t, 3> const& channelData) :
+        PixelRawRGB{channelData[0], channelData[1], channelData[2]} {}
 
     /**************************************************************************/
     /**
-     * @brief  Initialization constructor from size 4 array 
+     * @brief  Initialization constructor from size 4 array
      *
      * @param channelData Array of four bytes
      *
      */
-    PixelRGB( std::array<uint8_t, 4> const& channelData ) :
-        PixelRawRGB{ multiplyAlpha(channelData[0], channelData[3]),
-                     multiplyAlpha(channelData[1], channelData[3]),
-                     multiplyAlpha(channelData[2], channelData[3])}
-    {}
+    PixelRGB(std::array<uint8_t, 4> const& channelData) :
+        PixelRawRGB{multiplyAlpha(channelData[0], channelData[3]),
+                    multiplyAlpha(channelData[1], channelData[3]),
+                    multiplyAlpha(channelData[2], channelData[3])} {}
 
     /**************************************************************************/
     /**
-     * @brief  Initialization constructor from size 4 array 
+     * @brief  Initialization constructor from size 4 array
      *
      * @param channelData Array of four bytes
      *
      */
-    PixelRGB( std::array<uint8_t, 4> const& channelData, 
-              PremultipliedAlpha pma ) :
-        PixelRawRGB{ channelData[0], channelData[1], channelData[2] }
-    {}
+    PixelRGB(std::array<uint8_t, 4> const& channelData,
+             PremultipliedAlpha pma) :
+        PixelRawRGB{channelData[0], channelData[1], channelData[2]} {}
 
     /**************************************************************************/
     /**
@@ -137,7 +132,7 @@ public:
      * @param other Pixel to copy
      *
      */
-    PixelRGB( PixelRGB const& other ) = default;
+    PixelRGB(PixelRGB const& other) = default;
 
     /**************************************************************************/
     /**
@@ -146,20 +141,17 @@ public:
      * @param other Pixel to copy
      *
      */
-    PixelRGB( PixelRawRGBA const& other ) :
-        PixelRawRGB{ other.R_, other.G_, other.B_ }
-    {}
+    PixelRGB(PixelRawRGBA const& other) :
+        PixelRawRGB{other.R_, other.G_, other.B_} {}
 
-        /**************************************************************************/
+    /**************************************************************************/
     /**
      * @brief  Component access - red
      *
      * @return reference to component
      *
      */
-    uint8_t& R() {
-        return R_;
-    }
+    uint8_t& R() { return R_; }
 
     /**************************************************************************/
     /**
@@ -168,9 +160,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& G() {
-        return G_;
-    }
+    uint8_t& G() { return G_; }
 
     /**************************************************************************/
     /**
@@ -179,9 +169,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& B() {
-        return B_;
-    }
+    uint8_t& B() { return B_; }
 
     /**************************************************************************/
     /**
@@ -197,16 +185,13 @@ public:
      * @brief  'User defined' conversion operator to size 3 array
      *
      */
-    explicit operator std::array<uint8_t, 3>() const {
-        return { R_, G_, B_ };
-    }
+    explicit operator std::array<uint8_t, 3>() const { return {R_, G_, B_}; }
 
     std::string toString() const {
-        return "[ R: " + std::to_string( R_ ) + ", " +
-                " G: " + std::to_string( G_ ) + ", " +
-                " B: " + std::to_string( B_ ) + " ]";
+        return "[ R: " + std::to_string(R_) + ", " +
+               " G: " + std::to_string(G_) + ", " +
+               " B: " + std::to_string(B_) + " ]";
     }
-
 };
 
 /**************************************************************************/
@@ -219,12 +204,11 @@ public:
  */
 class PixelRGBA : public PixelRawRGBA {
 
-    uint8_t multiplyAlpha( uint8_t color, uint8_t alpha ) {
-        return (uint8_t)(color * (alpha/255.0) );
+    uint8_t multiplyAlpha(uint8_t color, uint8_t alpha) {
+        return (uint8_t)(color * (alpha / 255.0));
     }
 
-public:
-
+  public:
     static const uint8_t channels = 4;
 
     /**************************************************************************/
@@ -244,12 +228,9 @@ public:
      * @param _B Blue value
      *
      */
-    PixelRGBA( uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A ) :
-        PixelRawRGBA{ multiplyAlpha(_R, _A), 
-                      multiplyAlpha(_G, _A), 
-                      multiplyAlpha(_B, _A), 
-                      _A }
-    {}
+    PixelRGBA(uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A) :
+        PixelRawRGBA{multiplyAlpha(_R, _A), multiplyAlpha(_G, _A),
+                     multiplyAlpha(_B, _A), _A} {}
 
     /**************************************************************************/
     /**
@@ -261,11 +242,9 @@ public:
      * @param _B Blue value
      *
      */
-    PixelRGBA( uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A, 
-               PremultipliedAlpha pma ) :
-        PixelRawRGBA{ _R, _G, _B, _A }
-    {}
-
+    PixelRGBA(uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A,
+              PremultipliedAlpha pma) :
+        PixelRawRGBA{_R, _G, _B, _A} {}
 
     /**************************************************************************/
     /**
@@ -276,9 +255,8 @@ public:
      * @param _B Blue value
      *
      */
-    PixelRGBA( uint8_t _R, uint8_t _G, uint8_t _B ) :
-        PixelRawRGBA{ _R, _G, _B, 255 }
-    {}
+    PixelRGBA(uint8_t _R, uint8_t _G, uint8_t _B) :
+        PixelRawRGBA{_R, _G, _B, 255} {}
 
     /**************************************************************************/
     /**
@@ -287,9 +265,8 @@ public:
      * @param other Raw pixel value
      *
      */
-    PixelRGBA( PixelRawRGB const& other ) :
-        PixelRawRGBA{ other.R_, other.G_, other.B_, 255 }
-    {}
+    PixelRGBA(PixelRawRGB const& other) :
+        PixelRawRGBA{other.R_, other.G_, other.B_, 255} {}
 
     /**************************************************************************/
     /**
@@ -298,42 +275,33 @@ public:
      * @param channelData Array of byes in RGBA order
      *
      */
-    PixelRGBA( std::array<uint8_t, 3> const& channelData ) :
-        PixelRawRGBA{ channelData[0], 
-                      channelData[1], 
-                      channelData[2], 
-                      255 }
-    {}
+    PixelRGBA(std::array<uint8_t, 3> const& channelData) :
+        PixelRawRGBA{channelData[0], channelData[1], channelData[2], 255} {}
 
     /**************************************************************************/
     /**
      * @brief  Initialization constructor from size 4 vector - will premultiply
      *
      * @param channelData Array of byes in RGBA order
-     * 
+     *
      */
-    PixelRGBA( std::array<uint8_t, 4> const& channelData ) :
-        PixelRawRGBA{ multiplyAlpha(channelData[0], channelData[3]), 
-                      multiplyAlpha(channelData[1], channelData[3]), 
-                      multiplyAlpha(channelData[2], channelData[3]), 
-                      channelData[3] }
-    {}
+    PixelRGBA(std::array<uint8_t, 4> const& channelData) :
+        PixelRawRGBA{multiplyAlpha(channelData[0], channelData[3]),
+                     multiplyAlpha(channelData[1], channelData[3]),
+                     multiplyAlpha(channelData[2], channelData[3]),
+                     channelData[3]} {}
 
     /**************************************************************************/
     /**
      * @brief  Initialization constructor from size 4 vector - no premultiply
      *
      * @param channelData Array of byes in RGBA order
-     * 
+     *
      */
-    PixelRGBA( std::array<uint8_t, 4> const& channelData, 
-               PremultipliedAlpha pma ) :
-        PixelRawRGBA{ channelData[0], 
-                      channelData[1], 
-                      channelData[2], 
-                      channelData[3] }
-    {}
-
+    PixelRGBA(std::array<uint8_t, 4> const& channelData,
+              PremultipliedAlpha pma) :
+        PixelRawRGBA{channelData[0], channelData[1], channelData[2],
+                     channelData[3]} {}
 
     /**************************************************************************/
     /**
@@ -342,7 +310,7 @@ public:
      * @param other Pixel to copy
      *
      */
-    PixelRGBA( PixelRGBA const& other ) = default;
+    PixelRGBA(PixelRGBA const& other) = default;
 
     /**************************************************************************/
     /**
@@ -351,9 +319,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& R() {
-        return R_;
-    }
+    uint8_t& R() { return R_; }
 
     /**************************************************************************/
     /**
@@ -362,9 +328,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t const& R() const {
-        return R_;
-    }
+    uint8_t const& R() const { return R_; }
 
     /**************************************************************************/
     /**
@@ -373,9 +337,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& G() {
-        return G_;
-    }
+    uint8_t& G() { return G_; }
 
     /**************************************************************************/
     /**
@@ -384,9 +346,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t const& G() const {
-        return G_;
-    }
+    uint8_t const& G() const { return G_; }
 
     /**************************************************************************/
     /**
@@ -395,9 +355,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& B() {
-        return B_;
-    }
+    uint8_t& B() { return B_; }
 
     /**************************************************************************/
     /**
@@ -406,9 +364,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t const& B() const {
-        return B_;
-    }
+    uint8_t const& B() const { return B_; }
 
     /**************************************************************************/
     /**
@@ -417,9 +373,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t& A() {
-        return A_;
-    }
+    uint8_t& A() { return A_; }
 
     /**************************************************************************/
     /**
@@ -428,9 +382,7 @@ public:
      * @return reference to component
      *
      */
-    uint8_t const& A() const {
-        return A_;
-    }
+    uint8_t const& A() const { return A_; }
 
     /**************************************************************************/
     /**
@@ -448,22 +400,21 @@ public:
      * @param other Pixel to add to this one ('source')
      *
      */
-    PixelRGBA& operator+=( PixelRGBA const& other ) {
+    PixelRGBA& operator+=(PixelRGBA const& other) {
 
         // check to see if we need to blend
-        if( other.A_ == 255 ) {
+        if (other.A_ == 255) {
             R_ = other.R_;
             G_ = other.G_;
             B_ = other.B_;
             A_ = other.A_;
-        }
-        else {
-            float sourceFactor = (255.0 - (float)other.A_)/255.0;
+        } else {
+            float sourceFactor = (255.0 - (float)other.A_) / 255.0;
 
-            R_ = other.R_ + (uint8_t)((float)R_ * sourceFactor );
-            G_ = other.G_ + (uint8_t)((float)G_ * sourceFactor );
-            B_ = other.B_ + (uint8_t)((float)B_ * sourceFactor );
-            A_ = other.A_ + (uint8_t)((float)A_ * sourceFactor );
+            R_ = other.R_ + (uint8_t)((float)R_ * sourceFactor);
+            G_ = other.G_ + (uint8_t)((float)G_ * sourceFactor);
+            B_ = other.B_ + (uint8_t)((float)B_ * sourceFactor);
+            A_ = other.A_ + (uint8_t)((float)A_ * sourceFactor);
         }
 
         return *this;
@@ -475,28 +426,25 @@ public:
      *
      */
     explicit operator std::array<uint8_t, 4>() const {
-        return { R_, G_, B_, A_ };
-    } 
-
-    std::string toString() const {
-        return "[ R: " + std::to_string( R_ ) + ", " +
-                " G: " + std::to_string( G_ ) + ", " +
-                " B: " + std::to_string( B_ ) + ", " +
-                " A: " + std::to_string( A_ ) + " ]";
+        return {R_, G_, B_, A_};
     }
 
+    std::string toString() const {
+        return "[ R: " + std::to_string(R_) + ", " +
+               " G: " + std::to_string(G_) + ", " +
+               " B: " + std::to_string(B_) + ", " +
+               " A: " + std::to_string(A_) + " ]";
+    }
 };
 
-inline std::ostream& operator<<( std::ostream& os, PixelRGB const& p ) {
+inline std::ostream& operator<<(std::ostream& os, PixelRGB const& p) {
     os << p.toString();
     return os;
 }
 
-inline std::ostream& operator<<( std::ostream& os, PixelRGBA const& p ) {
+inline std::ostream& operator<<(std::ostream& os, PixelRGBA const& p) {
     os << p.toString();
     return os;
 }
 
-} // namespace MJB
-
-#endif //MJB_RENDERER_PIXEL
+} // namespace MjB

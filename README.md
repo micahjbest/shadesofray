@@ -1,2 +1,3 @@
 # shadesofray
-Some experiments with ray casting
+
+Some experiments with ray casting/tracing

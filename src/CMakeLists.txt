@@ -1,19 +1,23 @@
 cmake_minimum_required(VERSION 3.17.3)
 
-set(SOURCE_FILES stub.cpp renderer.cpp image.cpp)
-
-set(EXTERNAL_DIR PRIVATE ${PROJECT_SOURCE_DIR}/external)
+set(EXTERNAL_DIR PRIVATE "${PROJECT_SOURCE_DIR}/external")
+set(MATH_DIR PRIVATE "${PROJECT_SOURCE_DIR}/external")
+set(UTIL_DIR PRIVATE "${PROJECT_SOURCE_DIR}/util")
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
-add_executable(stub ${SOURCE_FILES})
+# add the rendering library 
+add_subdirectory(renderer)
+
+add_executable(stub stub.cpp)
 target_include_directories(stub PRIVATE ${EXTERNAL_DIR})
-# target_compile_definitions(stub PRIVATE MJB_RENDERER_USE_SDL)
+
+# TODO(mjb): make this optional
+target_compile_definitions(stub PRIVATE NDEBUG)
+
 target_compile_features(stub PRIVATE cxx_std_17)
 
-target_link_libraries(stub ${SDL2_LIBRARIES})
-target_link_libraries(stub ${OPENGL_gl_LIBRARY})
-target_link_libraries(stub imgui)
-
 include_directories(stub ${SDL2_INCLUDE_DIRS})
+
+target_link_libraries(stub renderer)
