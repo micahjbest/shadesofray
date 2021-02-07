@@ -8,7 +8,7 @@
 #include "math/3dmath.hpp"
 #include "renderer/renderer.hpp"
 
-int {
+struct ScreenPoint {
     float x = 0.0f;
     float y = 0.0f;
 

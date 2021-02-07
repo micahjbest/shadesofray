@@ -22,3 +22,11 @@ target_include_directories(imgui PUBLIC imgui/ imgui/examples/)
 target_compile_definitions(
   imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM=<SDL_opengl.h>
                GL_GLEXT_PROTOTYPES=1)
+
+
+####
+# Catch2
+add_subdirectory(Catch2)
+
+# make sure the catch cmake module is visible in other files 
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/Catch2/contrib" PARENT_SCOPE)

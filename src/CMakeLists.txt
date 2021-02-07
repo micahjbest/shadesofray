@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.17.3)
 
-set(EXTERNAL_DIR PRIVATE "${PROJECT_SOURCE_DIR}/external")
 set(MATH_DIR PRIVATE "${PROJECT_SOURCE_DIR}/external")
 set(UTIL_DIR PRIVATE "${PROJECT_SOURCE_DIR}/util")
 
