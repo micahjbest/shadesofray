@@ -4,5 +4,72 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"launch": {
+		"configurations": [
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Debug",
+				"program": "${workspaceFolder}/<your program>",
+				"args": [],
+				"cwd": "${workspaceFolder}"
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "run shadesofray",
+				"program": "${workspaceFolder}/target/debug/shadesofray",
+				"args": [],
+				"cwd": "${workspaceFolder}",
+				"sourceMap": {},
+				"sourceLanguages": [
+					"rust"
+				],
+				"env": {
+					"RUST_BACKTRACE": "short",
+					"ELECTRON_RUN_AS_NODE": "1",
+					"SECURITYSESSIONID": "186a7",
+					"USER": "mjb",
+					"__CFBundleIdentifier": "com.microsoft.VSCode",
+					"COMMAND_MODE": "unix2003",
+					"LOGNAME": "mjb",
+					"PATH": "/usr/local/opt/openjdk/bin:/usr/local/Cellar/pyenv-virtualenv/1.1.5/shims:/Users/mjb/.pyenv/shims:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/Users/mjb/.cargo/bin:/usr/local/Cellar/antlr/4.9.2:/usr/local/Cellar/antlr4-cpp-runtime/4.9.2:/usr/local/opt/openjdk/bin:/usr/local/opt/ruby/bin:/opt/local/bin:/opt/local/sbin:/Users/mjb/Documents/Development/cadmium/cdc:/usr/local/opt/llvm/bin:/usr/local/opt/fzf/bin",
+					"SSH_AUTH_SOCK": "/private/tmp/com.apple.launchd.tSTTcpQrq3/Listeners",
+					"SHELL": "/bin/zsh",
+					"HOME": "/Users/mjb",
+					"__CF_USER_TEXT_ENCODING": "0x1F5:0x0:0x52",
+					"LaunchInstanceID": "11FF5EFB-FA17-487E-96C3-CD11D637330A",
+					"TMPDIR": "/var/folders/80/yph0cr913j92bx1bfx6646kc0000gn/T/",
+					"XPC_SERVICE_NAME": "application.com.microsoft.VSCode.35241939.35241945",
+					"XPC_FLAGS": "0x0",
+					"ORIGINAL_XDG_CURRENT_DESKTOP": "undefined",
+					"VSCODE_CWD": "/",
+					"VSCODE_NLS_CONFIG": "{\"locale\":\"en-us\",\"availableLanguages\":{},\"_languagePackSupport\":true}",
+					"VSCODE_CODE_CACHE_PATH": "/Users/mjb/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5",
+					"VSCODE_IPC_HOOK": "/Users/mjb/Library/Application Support/Code/1.67.2-main.sock",
+					"VSCODE_PID": "74378",
+					"SHLVL": "0",
+					"PWD": "/",
+					"OLDPWD": "/",
+					"CADMIUMROOT": "/Users/mjb/Documents/Development/cadmium",
+					"ZSH": "/Users/mjb/.oh-my-zsh",
+					"PAGER": "less",
+					"LESS": "-R",
+					"LSCOLORS": "Gxfxcxdxbxegedabagacad",
+					"PYENV_SHELL": "zsh",
+					"PYENV_VIRTUALENV_INIT": "1",
+					"_": "/Applications/Visual Studio Code.app/Contents/MacOS/Electron",
+					"VSCODE_AMD_ENTRYPOINT": "vs/workbench/api/node/extensionHostProcess",
+					"VSCODE_PIPE_LOGGING": "true",
+					"VSCODE_VERBOSE_LOGGING": "true",
+					"VSCODE_LOG_NATIVE": "false",
+					"VSCODE_IPC_HOOK_EXTHOST": "/var/folders/80/yph0cr913j92bx1bfx6646kc0000gn/T/vscode-ipc-ae624eec-6f94-4e2f-a83f-e8661b4ac64e.sock",
+					"VSCODE_HANDLES_UNCAUGHT_ERRORS": "true",
+					"VSCODE_LOG_STACK": "false",
+					"APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL": "1"
+				}
+			}
+		]
+	}
 }
